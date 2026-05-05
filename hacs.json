@@ -1,0 +1,6 @@
+{
+  "name": "Weekly Reminder Card",
+  "type": "plugin",
+  "filename": "weekly-reminder-card.js",
+  "render_readme": true
+}
