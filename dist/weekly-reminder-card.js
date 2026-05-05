@@ -310,6 +310,14 @@ class WeeklyReminderCard extends HTMLElement {
           opacity: 0.5;
           text-decoration: line-through;
         }
+        .wr-bullet {
+          flex-shrink: 0;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, ${accent}, ${accent2});
+          box-shadow: 0 0 8px ${accent}66;
+        }
         .wr-item-icon {
           flex-shrink: 0;
           width: 28px;
@@ -320,32 +328,6 @@ class WeeklyReminderCard extends HTMLElement {
         }
         .wr-item-icon ha-icon {
           --mdc-icon-size: 20px;
-        }
-        .wr-checkbox {
-          flex-shrink: 0;
-          width: 22px;
-          height: 22px;
-          border-radius: 6px;
-          border: 2px solid rgba(255,255,255,0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-          cursor: pointer;
-        }
-        .wr-checkbox:hover {
-          border-color: ${accent};
-          background: rgba(102,126,234,0.2);
-        }
-        .wr-checkbox.checked {
-          background: linear-gradient(135deg, ${accent}, ${accent2});
-          border-color: transparent;
-        }
-        .wr-checkbox.checked::after {
-          content: '✓';
-          color: #fff;
-          font-size: 12px;
-          font-weight: 700;
         }
         .wr-item-text {
           flex: 1;
@@ -394,16 +376,6 @@ class WeeklyReminderCard extends HTMLElement {
         </ul>
       </div>
     `;
-
-    // Add click handlers for checkboxes
-    this.shadowRoot.querySelectorAll(".wr-checkbox").forEach((cb) => {
-      cb.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const uid = cb.dataset.uid;
-        const status = cb.dataset.status;
-        this._toggleItem(uid, status);
-      });
-    });
   }
 
   _renderItem(item, index) {
@@ -429,19 +401,13 @@ class WeeklyReminderCard extends HTMLElement {
     if (tags.bold) textStyle += `font-weight: 700;`;
 
     const iconColor = tags.icon_color || tags.color || "";
-    const iconHtml = tags.icon
+    const bulletOrIcon = tags.icon
       ? `<div class="wr-item-icon"><ha-icon icon="${tags.icon}" style="${iconColor ? `color:${iconColor}` : ""}"></ha-icon></div>`
-      : "";
-
-    const uid = item.uid || index;
+      : `<div class="wr-bullet"></div>`;
 
     return `
       <li class="${itemClasses}" style="${itemStyle}">
-        <div class="wr-checkbox ${isCompleted ? "checked" : ""}" 
-             data-uid="${uid}" 
-             data-status="${isCompleted ? "completed" : "needs_action"}">
-        </div>
-        ${iconHtml}
+        ${bulletOrIcon}
         <span class="${textClasses}" style="${textStyle}">${this._escapeHtml(text)}</span>
       </li>
     `;
@@ -466,21 +432,6 @@ class WeeklyReminderCard extends HTMLElement {
         return `background: var(--ha-card-background, var(--card-background-color, #1a1a2e));`;
       default:
         return `background: linear-gradient(135deg, #1a1a2e 0%, #667eea22 50%, #16213e 100%);`;
-    }
-  }
-
-  async _toggleItem(uid, currentStatus) {
-    const newStatus = currentStatus === "completed" ? "needs_action" : "completed";
-    try {
-      await this._hass.callService("todo", "update_item", {
-        entity_id: this._config.entity,
-        item: uid,
-        status: newStatus,
-      });
-      // Refetch items after toggling
-      await this._fetchItems();
-    } catch (e) {
-      console.error("Weekly Reminder Card: Could not toggle item", e);
     }
   }
 }
