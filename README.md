@@ -50,10 +50,10 @@ Dark gradient background • Glassmorphism • Hover animations • Pulsing impo
 
 ### Via HACS (recommended)
 
-1. Open **HACS** → **Frontend**
+1. Open **HACS** → **Dashboard** (Instrumentpanel)
 2. Click **⋮** → **Custom repositories**
 3. URL: `https://github.com/ostbergjohan/ha-todo-card`
-4. Category: **Plugin (Lovelace)**
+4. Category: **Dashboard** (Instrumentpanel)
 5. Click **Add** → Search **Weekly Reminder Card** → **Download**
 6. Restart Home Assistant
 
