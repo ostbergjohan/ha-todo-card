@@ -36,6 +36,9 @@ class WeeklyReminderCard extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._config = {};
     this._hass = null;
+    this._items = [];
+    this._loading = true;
+    this._fetchTimer = null;
   }
 
   static get properties() {
@@ -119,6 +122,10 @@ class WeeklyReminderCard extends HTMLElement {
 
   // ─── Render ────────────────────────────────────────────────────
   _render() {
+    this._renderCard();
+  }
+
+  _renderCard() {
     if (!this._hass || !this._config.entity) return;
 
     const entity = this._hass.states[this._config.entity];
@@ -126,14 +133,22 @@ class WeeklyReminderCard extends HTMLElement {
       this.shadowRoot.innerHTML = `
         <ha-card>
           <div style="padding:16px;color:#ef4444;">
-            <strong>⚠️ Entity "${this._config.entity}" hittades inte.</strong><br>
-            Kontrollera att din todo-lista finns.
+            <strong>⚠️ Entity "${this._config.entity}" not found.</strong><br>
+            Make sure your todo list entity exists.
           </div>
         </ha-card>`;
       return;
     }
 
-    const items = entity.attributes.items || [];
+    if (this._loading) {
+      this.shadowRoot.innerHTML = `
+        <ha-card>
+          <div style="padding:24px;text-align:center;opacity:0.6;">Loading...</div>
+        </ha-card>`;
+      return;
+    }
+
+    const items = this._items;
     const showCompleted = this._config.show_completed;
     let filteredItems = showCompleted
       ? items
@@ -420,6 +435,8 @@ class WeeklyReminderCard extends HTMLElement {
         item: uid,
         status: newStatus,
       });
+      // Refetch items after toggling
+      await this._fetchItems();
     } catch (e) {
       console.error("Weekly Reminder Card: Could not toggle item", e);
     }
