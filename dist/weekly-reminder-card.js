@@ -62,8 +62,41 @@ class WeeklyReminderCard extends HTMLElement {
   }
 
   set hass(hass) {
+    const oldHass = this._hass;
     this._hass = hass;
-    this._render();
+
+    // Fetch items on first load or when entity state changes
+    const entityId = this._config.entity;
+    if (entityId) {
+      const oldState = oldHass && oldHass.states[entityId];
+      const newState = hass.states[entityId];
+      if (!oldState || !this._fetched || (newState && oldState.last_updated !== newState.last_updated)) {
+        this._fetchItems();
+        return;
+      }
+    }
+
+    this._renderCard();
+  }
+
+  async _fetchItems() {
+    if (!this._hass || !this._config.entity) return;
+
+    try {
+      const result = await this._hass.callWS({
+        type: "todo/item/list",
+        entity_id: this._config.entity,
+      });
+      this._items = result.items || [];
+      this._loading = false;
+      this._fetched = true;
+    } catch (e) {
+      console.error("Weekly Reminder Card: Could not fetch items", e);
+      this._items = [];
+      this._loading = false;
+    }
+
+    this._renderCard();
   }
 
   setConfig(config) {
@@ -86,7 +119,9 @@ class WeeklyReminderCard extends HTMLElement {
       show_badge: true,
       ...config,
     };
-    this._render();
+    if (this._hass) {
+      this._fetchItems();
+    }
   }
 
   getCardSize() {
@@ -124,10 +159,6 @@ class WeeklyReminderCard extends HTMLElement {
   }
 
   // ─── Render ────────────────────────────────────────────────────
-  _render() {
-    this._renderCard();
-  }
-
   _renderCard() {
     if (!this._hass || !this._config.entity) return;
 

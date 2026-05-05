@@ -110,6 +110,7 @@ compact: false                      # compact mode
 | `text_color` | `#ffffff` | Default text color |
 | `show_header_icon` | `true` | Show icon in header |
 | `header_icon` | `mdi:clipboard-check-outline` | MDI icon for header |
+| `header_icon_color` | `#ffffff` | Header icon color |
 | `show_badge` | `true` | Show active item count badge |
 | `compact` | `false` | Compact mode (less padding) |
 
@@ -127,6 +128,7 @@ Add tags at the beginning of your todo item text to give it unique styling:
 | `[color:#ff5555]` | Custom text color (hex, name, or rgb) |
 | `[bg:#ffeb3b]` | Row background color |
 | `[icon:mdi:fire]` | MDI icon before text |
+| `[icon_color:#ff9800]` | Icon color (independent of text color) |
 | `[size:large]` | Text size: `small`, `normal`, `large` |
 | `[blink]` | Soft pulse animation |
 
