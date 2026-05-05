@@ -79,6 +79,7 @@ class WeeklyReminderCard extends HTMLElement {
       background: "gradient",
       card_bg_color: "",
       text_color: "",
+      header_icon_color: "#ffffff",
       show_header_icon: true,
       header_icon: "mdi:clipboard-check-outline",
       compact: false,
@@ -111,6 +112,8 @@ class WeeklyReminderCard extends HTMLElement {
         tags.bg = tag.slice(3);
       } else if (tag.startsWith("icon:")) {
         tags.icon = tag.slice(5);
+      } else if (tag.startsWith("icon_color:")) {
+        tags.icon_color = tag.slice(11);
       } else if (tag.startsWith("size:")) {
         tags.size = tag.slice(5);
       }
@@ -212,7 +215,7 @@ class WeeklyReminderCard extends HTMLElement {
         }
         .wr-header-icon ha-icon {
           --mdc-icon-size: 22px;
-          color: #fff;
+          color: ${c.header_icon_color || "#fff"};
         }
         .wr-title {
           font-size: ${c.compact ? "1.1em" : "1.3em"};
@@ -380,8 +383,9 @@ class WeeklyReminderCard extends HTMLElement {
     if (tags.color) textStyle += `color: ${tags.color};`;
     if (tags.bold) textStyle += `font-weight: 700;`;
 
+    const iconColor = tags.icon_color || tags.color || "";
     const iconHtml = tags.icon
-      ? `<div class="wr-item-icon"><ha-icon icon="${tags.icon}" style="${tags.color ? `color:${tags.color}` : ""}"></ha-icon></div>`
+      ? `<div class="wr-item-icon"><ha-icon icon="${tags.icon}" style="${iconColor ? `color:${iconColor}` : ""}"></ha-icon></div>`
       : "";
 
     const uid = item.uid || index;
@@ -552,6 +556,10 @@ class WeeklyReminderCardEditor extends HTMLElement {
           <label>Header-ikon (t.ex. mdi:clipboard-check-outline)</label>
           <input id="header_icon" type="text" value="${this._config.header_icon || "mdi:clipboard-check-outline"}">
         </div>
+        <div class="row">
+          <label>Header-ikon färg</label>
+          <input id="header_icon_color" type="color" value="${this._config.header_icon_color || "#ffffff"}">
+        </div>
         <h3>Beteende</h3>
         <div class="checkbox-row">
           <input id="show_completed" type="checkbox" ${this._config.show_completed ? "checked" : ""}>
@@ -573,7 +581,7 @@ class WeeklyReminderCardEditor extends HTMLElement {
     `;
 
     // Bind events
-    const fields = ["entity", "title", "max_items", "background", "accent_color", "accent_color_2", "card_bg_color", "text_color", "header_icon"];
+    const fields = ["entity", "title", "max_items", "background", "accent_color", "accent_color_2", "card_bg_color", "text_color", "header_icon", "header_icon_color"];
     fields.forEach((field) => {
       const el = this.shadowRoot.getElementById(field);
       if (el) {
