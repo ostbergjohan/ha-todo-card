@@ -65,15 +65,24 @@ class WeeklyReminderCard extends HTMLElement {
     const oldHass = this._hass;
     this._hass = hass;
 
-    // Fetch items on first load or when entity state changes
     const entityId = this._config.entity;
-    if (entityId) {
-      const oldState = oldHass && oldHass.states[entityId];
-      const newState = hass.states[entityId];
-      if (!oldState || !this._fetched || (newState && oldState.last_updated !== newState.last_updated)) {
-        this._fetchItems();
-        return;
-      }
+    if (!entityId) {
+      this._renderCard();
+      return;
+    }
+
+    // Always fetch on first load
+    if (!this._fetched) {
+      this._fetchItems();
+      return;
+    }
+
+    // Refetch when entity state changes (item added/removed/toggled)
+    const oldState = oldHass && oldHass.states[entityId];
+    const newState = hass.states[entityId];
+    if (newState && (!oldState || oldState.state !== newState.state || oldState.last_updated !== newState.last_updated)) {
+      this._fetchItems();
+      return;
     }
 
     this._renderCard();
@@ -83,6 +92,7 @@ class WeeklyReminderCard extends HTMLElement {
     if (!this._hass || !this._config.entity) return;
 
     try {
+      // Try WebSocket API first (HA 2023.11+)
       const result = await this._hass.callWS({
         type: "todo/item/list",
         entity_id: this._config.entity,
@@ -91,9 +101,21 @@ class WeeklyReminderCard extends HTMLElement {
       this._loading = false;
       this._fetched = true;
     } catch (e) {
-      console.error("Weekly Reminder Card: Could not fetch items", e);
-      this._items = [];
-      this._loading = false;
+      // Fallback: try calling the service via REST-style
+      try {
+        const response = await this._hass.callApi(
+          "GET",
+          `todo/items/${this._config.entity}`
+        );
+        this._items = response.items || response || [];
+        this._loading = false;
+        this._fetched = true;
+      } catch (e2) {
+        console.error("Weekly Reminder Card: Could not fetch items", e, e2);
+        this._items = [];
+        this._loading = false;
+        this._fetched = true;
+      }
     }
 
     this._renderCard();
@@ -170,14 +192,6 @@ class WeeklyReminderCard extends HTMLElement {
             <strong>⚠️ Entity "${this._config.entity}" not found.</strong><br>
             Make sure your todo list entity exists.
           </div>
-        </ha-card>`;
-      return;
-    }
-
-    if (this._loading) {
-      this.shadowRoot.innerHTML = `
-        <ha-card>
-          <div style="padding:24px;text-align:center;opacity:0.6;">Loading...</div>
         </ha-card>`;
       return;
     }
