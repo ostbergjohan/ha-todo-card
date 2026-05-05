@@ -323,12 +323,6 @@ class WeeklyReminderCard extends HTMLElement {
         .blink {
           animation: pulse-attention 2s ease-in-out infinite;
         }
-        .wr-footer {
-          margin-top: ${c.compact ? "10px" : "16px"};
-          font-size: 0.75em;
-          opacity: 0.5;
-          text-align: right;
-        }
       </style>
       <div class="wr-card">
         <div class="wr-header">
@@ -350,7 +344,6 @@ class WeeklyReminderCard extends HTMLElement {
             </div>
           ` : filteredItems.map((item, index) => this._renderItem(item, index)).join("")}
         </ul>
-        <div class="wr-footer">Weekly Reminder Card v${CARD_VERSION}</div>
       </div>
     `;
 
@@ -453,16 +446,21 @@ class WeeklyReminderCardEditor extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+    // Only render once on first hass set, not on every update
+    if (!this._rendered) {
+      this._renderEditor();
+    }
   }
 
   setConfig(config) {
     this._config = config;
-    this._render();
+    this._rendered = false;
+    this._renderEditor();
   }
 
-  _render() {
+  _renderEditor() {
     if (!this._hass) return;
+    this._rendered = true;
 
     // Get all todo entities
     const todoEntities = Object.keys(this._hass.states)
