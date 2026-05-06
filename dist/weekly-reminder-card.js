@@ -297,7 +297,7 @@ class WeeklyReminderCard extends HTMLElement {
           backdrop-filter: blur(4px);
           border: 1px solid rgba(255,255,255,0.08);
           transition: all 0.2s ease;
-          cursor: pointer;
+          cursor: default;
           position: relative;
           overflow: hidden;
         }
@@ -305,10 +305,6 @@ class WeeklyReminderCard extends HTMLElement {
           background: rgba(255,255,255,0.12);
           transform: translateX(4px);
           border-color: rgba(255,255,255,0.15);
-        }
-        .wr-item.completed {
-          opacity: 0.5;
-          text-decoration: line-through;
         }
         .wr-bullet {
           flex-shrink: 0;
@@ -380,16 +376,15 @@ class WeeklyReminderCard extends HTMLElement {
 
   _renderItem(item, index) {
     const { tags, text } = this._parseTags(item.summary || item.name || "");
-    const isCompleted = item.status === "completed";
 
     let itemStyle = "";
     let textClasses = "wr-item-text";
-    let itemClasses = `wr-item ${isCompleted ? "completed" : ""}`;
+    let itemClasses = "wr-item";
 
     if (tags.bg) {
       itemStyle += `background: ${tags.bg}20; border-color: ${tags.bg}40;`;
     }
-    if (tags.blink && !isCompleted) {
+    if (tags.blink) {
       itemClasses += " blink";
     }
     if (tags.size) {
