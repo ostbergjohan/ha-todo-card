@@ -1,0 +1,46 @@
+{
+  "sources": [
+    {
+      "id": "all",
+      "name": "All sport",
+      "url": "sport",
+      "icon": "mdi:trophy",
+      "accent_color": "#667eea"
+    },
+    {
+      "id": "fotboll",
+      "name": "Fotboll",
+      "url": "sport/fotboll",
+      "icon": "mdi:soccer",
+      "accent_color": "#4CAF50"
+    },
+    {
+      "id": "champions_league",
+      "name": "Champions League",
+      "url": "sport/fotboll/liga/champions-league",
+      "icon": "mdi:soccer",
+      "accent_color": "#1a237e"
+    },
+    {
+      "id": "allsvenskan",
+      "name": "Allsvenskan",
+      "url": "sport/fotboll/liga/allsvenskan",
+      "icon": "mdi:soccer",
+      "accent_color": "#002f6c"
+    },
+    {
+      "id": "ishockey",
+      "name": "Ishockey",
+      "url": "sport/ishockey",
+      "icon": "mdi:hockey-puck",
+      "accent_color": "#0288d1"
+    },
+    {
+      "id": "tennis",
+      "name": "Tennis",
+      "url": "sport/tennis",
+      "icon": "mdi:tennis",
+      "accent_color": "#00796b"
+    }
+  ]
+}
