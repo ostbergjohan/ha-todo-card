@@ -28,7 +28,7 @@
  *   compact: false
  */
 
-const CARD_VERSION = "1.1.0";
+const CARD_VERSION = "1.2.0";
 
 class WeeklyReminderCard extends HTMLElement {
   constructor() {
@@ -217,20 +217,56 @@ class WeeklyReminderCard extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
         :host {
           display: block;
         }
         .wr-card {
           ${bg}
-          border-radius: 16px;
+          border-radius: ${c.background === 'postit' ? '2px 2px 2px 2px' : '16px'};
           padding: ${c.compact ? "16px" : "24px"};
-          color: ${textColor};
-          font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+          color: ${c.background === 'postit' ? '#3a3a3a' : textColor};
+          font-family: ${c.background === 'postit' ? "'Patrick Hand', 'Segoe UI', cursive" : "'Segoe UI', system-ui, -apple-system, sans-serif"};
           position: relative;
-          overflow: hidden;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
-          border: 1px solid rgba(255,255,255,0.1);
+          overflow: ${c.background === 'postit' ? 'visible' : 'hidden'};
+          box-shadow: ${c.background === 'postit'
+            ? '0 2px 8px rgba(0,0,0,0.08), 2px 4px 16px rgba(0,0,0,0.10)'
+            : '0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)'};
+          border: ${c.background === 'postit' ? 'none' : '1px solid rgba(255,255,255,0.1)'};
+          ${c.background === 'postit' ? 'transform: rotate(-2deg);' : ''}
         }
+        ${c.background === 'postit' ? `
+        .wr-card::before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 30px;
+          height: 30px;
+          background: linear-gradient(
+            225deg,
+            transparent 48%,
+            rgba(0,0,0,0.03) 48%,
+            rgba(0,0,0,0.02) 56%,
+            rgba(0,0,0,0.008) 62%,
+            ${c.card_bg_color || '#e8deb3'} 62%
+          );
+          border-radius: 0 0 0 0;
+          pointer-events: none;
+          z-index: 2;
+        }
+        .wr-card::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 30px;
+          height: 30px;
+          box-shadow: -3px -3px 6px rgba(0,0,0,0.06);
+          border-radius: 0;
+          pointer-events: none;
+        }
+        ` : `
         .wr-card::before {
           content: '';
           position: absolute;
@@ -241,41 +277,48 @@ class WeeklyReminderCard extends HTMLElement {
           background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
           pointer-events: none;
         }
+        `}
         .wr-header {
           display: flex;
           align-items: center;
           gap: 12px;
           margin-bottom: ${c.compact ? "12px" : "20px"};
           position: relative;
+          ${c.background === 'postit' ? 'border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 12px;' : ''}
         }
         .wr-header-icon {
           width: 42px;
           height: 42px;
           border-radius: 12px;
-          background: linear-gradient(135deg, ${accent}, ${accent2});
+          background: ${c.background === 'postit'
+            ? 'rgba(0,0,0,0.08)'
+            : `linear-gradient(135deg, ${accent}, ${accent2})`};
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+          box-shadow: ${c.background === 'postit' ? 'none' : '0 4px 12px rgba(102,126,234,0.4)'};
         }
         .wr-header-icon ha-icon {
           --mdc-icon-size: 22px;
-          color: ${c.header_icon_color || "#fff"};
+          color: ${c.background === 'postit' ? '#5a5a5a' : (c.header_icon_color || "#fff")};
         }
         .wr-title {
-          font-size: ${c.compact ? "1.1em" : "1.3em"};
+          font-size: ${c.compact ? "1.1em" : (c.background === 'postit' ? '1.5em' : '1.3em')};
           font-weight: 700;
-          letter-spacing: -0.02em;
+          letter-spacing: ${c.background === 'postit' ? '0.01em' : '-0.02em'};
+          ${c.background === 'postit' ? 'text-decoration: underline; text-decoration-color: rgba(0,0,0,0.15); text-underline-offset: 4px;' : ''}
         }
         .wr-badge {
           margin-left: auto;
-          background: linear-gradient(135deg, ${accent}, ${accent2});
-          color: #fff;
+          background: ${c.background === 'postit'
+            ? 'rgba(0,0,0,0.12)'
+            : `linear-gradient(135deg, ${accent}, ${accent2})`};
+          color: ${c.background === 'postit' ? '#3a3a3a' : '#fff'};
           font-size: 0.75em;
           font-weight: 700;
           padding: 4px 10px;
           border-radius: 20px;
-          box-shadow: 0 2px 8px rgba(102,126,234,0.4);
+          box-shadow: ${c.background === 'postit' ? 'none' : '0 2px 8px rgba(102,126,234,0.4)'};
           min-width: 20px;
           text-align: center;
         }
@@ -292,27 +335,34 @@ class WeeklyReminderCard extends HTMLElement {
           align-items: center;
           gap: 12px;
           padding: ${c.compact ? "10px 12px" : "14px 16px"};
-          border-radius: 12px;
-          background: rgba(255,255,255,0.07);
-          backdrop-filter: blur(4px);
-          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: ${c.background === 'postit' ? '4px' : '12px'};
+          background: ${c.background === 'postit' ? 'transparent' : 'rgba(255,255,255,0.07)'};
+          backdrop-filter: ${c.background === 'postit' ? 'none' : 'blur(4px)'};
+          border: ${c.background === 'postit' ? 'none' : '1px solid rgba(255,255,255,0.08)'};
+          ${c.background === 'postit' ? 'border-bottom: 1px solid rgba(0,0,0,0.06);' : ''}
           transition: all 0.2s ease;
-          cursor: default;
+          cursor: pointer;
           position: relative;
           overflow: hidden;
         }
         .wr-item:hover {
-          background: rgba(255,255,255,0.12);
+          background: ${c.background === 'postit' ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.12)'};
           transform: translateX(4px);
-          border-color: rgba(255,255,255,0.15);
+          ${c.background === 'postit' ? '' : 'border-color: rgba(255,255,255,0.15);'}
+        }
+        .wr-item.completed {
+          opacity: 0.5;
+          text-decoration: line-through;
         }
         .wr-bullet {
           flex-shrink: 0;
-          width: 10px;
-          height: 10px;
+          width: ${c.background === 'postit' ? '8px' : '10px'};
+          height: ${c.background === 'postit' ? '8px' : '10px'};
           border-radius: 50%;
-          background: linear-gradient(135deg, ${accent}, ${accent2});
-          box-shadow: 0 0 8px ${accent}66;
+          background: ${c.background === 'postit'
+            ? '#5a5a5a'
+            : `linear-gradient(135deg, ${accent}, ${accent2})`};
+          box-shadow: ${c.background === 'postit' ? 'none' : `0 0 8px ${accent}66`};
         }
         .wr-item-icon {
           flex-shrink: 0;
@@ -324,10 +374,11 @@ class WeeklyReminderCard extends HTMLElement {
         }
         .wr-item-icon ha-icon {
           --mdc-icon-size: 20px;
+          ${c.background === 'postit' ? 'color: #5a5a5a;' : ''}
         }
         .wr-item-text {
           flex: 1;
-          font-size: ${c.compact ? "0.9em" : "1em"};
+          font-size: ${c.compact ? "0.9em" : (c.background === 'postit' ? '1.1em' : '1em')};
           line-height: 1.4;
         }
         .wr-item-text.size-small { font-size: 0.85em; }
@@ -376,15 +427,16 @@ class WeeklyReminderCard extends HTMLElement {
 
   _renderItem(item, index) {
     const { tags, text } = this._parseTags(item.summary || item.name || "");
+    const isCompleted = item.status === "completed";
 
     let itemStyle = "";
     let textClasses = "wr-item-text";
-    let itemClasses = "wr-item";
+    let itemClasses = `wr-item ${isCompleted ? "completed" : ""}`;
 
     if (tags.bg) {
       itemStyle += `background: ${tags.bg}20; border-color: ${tags.bg}40;`;
     }
-    if (tags.blink) {
+    if (tags.blink && !isCompleted) {
       itemClasses += " blink";
     }
     if (tags.size) {
@@ -423,6 +475,8 @@ class WeeklyReminderCard extends HTMLElement {
         return `background: rgba(30,30,60,0.7); backdrop-filter: blur(20px);`;
       case "solid":
         return `background: ${c.card_bg_color || "#1a1a2e"};`;
+      case "postit":
+        return `background: ${c.card_bg_color || '#FFF9C4'};`;
       case "none":
         return `background: var(--ha-card-background, var(--card-background-color, #1a1a2e));`;
       default:
@@ -523,6 +577,7 @@ class WeeklyReminderCardEditor extends HTMLElement {
           <select id="background">
             <option value="gradient" ${this._config.background === "gradient" ? "selected" : ""}>Gradient</option>
             <option value="glass" ${this._config.background === "glass" ? "selected" : ""}>Glas (Frosted)</option>
+            <option value="postit" ${this._config.background === "postit" ? "selected" : ""}>Post-it</option>
             <option value="solid" ${this._config.background === "solid" ? "selected" : ""}>Enfärgad</option>
             <option value="none" ${this._config.background === "none" ? "selected" : ""}>Tema-standard</option>
           </select>

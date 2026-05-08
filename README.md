@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/HACS-Custom-orange?style=for-the-badge" alt="HACS">
-  <img src="https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.2.0-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Home%20Assistant-2023.1+-green?style=for-the-badge" alt="HA Version">
 </p>
 
@@ -105,7 +105,7 @@ compact: false                      # compact mode
 | `show_completed` | `false` | Whether to show completed items |
 | `accent_color` | `#667eea` | Primary accent color |
 | `accent_color_2` | `#764ba2` | Secondary accent color (gradient) |
-| `background` | `gradient` | Background style: gradient/glass/solid/none |
+| `background` | `gradient` | Background style: gradient/glass/solid/postit/none |
 | `card_bg_color` | `#1a1a2e` | Card background color |
 | `text_color` | `#ffffff` | Default text color |
 | `show_header_icon` | `true` | Show icon in header |
@@ -163,7 +163,27 @@ Add tags at the beginning of your todo item text to give it unique styling:
 | `gradient` | Dark gradient with subtle accent color ✨ |
 | `glass` | Glassmorphism with blur effect 🪟 |
 | `solid` | Solid color with your chosen background |
+| `postit` | Post-it note with folded corner & handwriting font 📌 |
 | `none` | Follows your Home Assistant theme |
+
+### Post-it Note Style
+
+<p align="center">
+  <img src="todo.png" alt="Post-it note style" width="400">
+</p>
+
+The post-it mode gives your reminders a fun, realistic sticky note look:
+- 📌 Tape strip at the top
+- ✍️ Handwriting font (Patrick Hand)
+- 📐 Slight rotation for a pinned-paper feel
+- 📄 Folded corner at the bottom right
+
+```yaml
+type: custom:weekly-reminder-card
+entity: todo.shopping_list
+background: "postit"
+card_bg_color: "#FFF9C4"   # yellow (default), try #C8E6C9 (green), #BBDEFB (blue), #F8BBD0 (pink)
+```
 
 ---
 
